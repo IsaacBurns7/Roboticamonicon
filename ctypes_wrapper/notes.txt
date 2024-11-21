@@ -1,0 +1,35 @@
+g++ -c -fPIC MyClass.cpp wrapper.cpp
+g++ -shared -o libmyclass.so MyClass.o wrapper.o
+
+g++ -c -fPIC MS5837.cpp wrapper.cpp
+g++ -shared -o libmyclass.so MS5837.o wrapper.o
+
+- note: if using Wire_mock.cpp
+g++ -c -fPIC MS5837.cpp wrapper.cpp Wire.cpp
+g++ -shared -o libms5837.so MS5837.o wrapper.o Wire.o
+
+???
+extern "C" {
+    bool MS5837_init(void* instance, TwoWire* wirePort) {
+        if (wirePort == nullptr) {
+            // Call init() without arguments to use the default Wire
+            return static_cast<MS5837*>(instance)->init();
+        } else {
+            // Dereference the pointer to pass the reference
+            return static_cast<MS5837*>(instance)->init(*wirePort);
+        }
+    }
+}
+
+chatgpt said this
+
+// init() wrapper
+    bool MS5837_init(void* instance) {
+        return static_cast<MS5837*>(instance)->init();
+    }
+
+    // begin() wrapper
+    bool MS5837_begin(void* instance) {
+        return static_cast<MS5837*>(instance)->begin();
+    }
+- discluded TwoWire b/c "may not be available".... -> may be restarted
